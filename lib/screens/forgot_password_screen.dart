@@ -1,6 +1,8 @@
+import 'package:doc_saver_app/provider/auth_provider.dart';
 import 'package:doc_saver_app/widgets/custom_button.dart';
 import 'package:doc_saver_app/widgets/custom_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   static String routeName = "/forgotPasswordScreen";
@@ -11,6 +13,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  GlobalKey<FormState> _key = GlobalKey();
   final TextEditingController emailController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -31,20 +34,35 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               textAlign: TextAlign.center,
             ),
-            CustomTextField(
-              controller: emailController,
-              hintText: "Enter your email",
-              labelText: "Email",
-              prefixIconData: Icons.email_outlined,
-              validator: (String? value) {
-                if (value!.isEmpty) {
-                  return "Please enter a valid email";
-                } else {
-                  return null;
-                }
-              },
+            Form(
+              key: _key,
+              child: CustomTextField(
+                controller: emailController,
+                hintText: "Enter your email",
+                labelText: "Email",
+                prefixIconData: Icons.email_outlined,
+                validator: (String? value) {
+                  if (value!.isEmpty) {
+                    return "Please enter a valid email";
+                  } else {
+                    return null;
+                  }
+                },
+              ),
             ),
-            CustomButton(onPressed: () {}, title: "Forgot Password")
+            Consumer<AuthProvider>(builder: (context, provider, child) {
+              return provider.isLoadingForgetPassword
+                  ? const Center(child: CircularProgressIndicator())
+                  : CustomButton(
+                      onPressed: () {
+                        if (_key.currentState!.validate()) {
+                          provider.forgotPassword(
+                              context, emailController.text);
+                        }
+                      },
+                      title: "Forgot Password",
+                    );
+            })
           ],
         ),
       ),

@@ -42,6 +42,21 @@ dependencies:
   provider: ^6.0.5
   firebase_core: ^2.15.0
   firebase_auth: ^4.7.2
+  file_picker: ^5.5.0
+  firebase_database: ^10.2.6
+  firebase_storage: ^11.2.7
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon_logo.png"
+  adaptive_icon_background: "#DAE3FC"
+  adaptive_icon_foreground: "assets/icon_logo.png"
+  web:
+    generate: true
+    image_path: "assets/icon_logo.png"
+    background_color: "#DAE3FC"
+    theme_color: "#DAE3FC"
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +83,10 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icon_image.png
+    - assets/icon_pdf_type.png
+    - assets/icon_image_type.png
+    - assets/icon_text.png
+    - assets/icon_no_file.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

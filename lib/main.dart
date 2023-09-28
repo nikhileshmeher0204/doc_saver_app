@@ -1,14 +1,22 @@
 import 'package:doc_saver_app/firebase_options.dart';
+import 'package:doc_saver_app/provider/auth_provider.dart';
+import 'package:doc_saver_app/provider/document_provider.dart';
+import 'package:doc_saver_app/screens/add_document_screen.dart';
 import 'package:doc_saver_app/screens/authentication_screen.dart';
 import 'package:doc_saver_app/screens/forgot_password_screen.dart';
+import 'package:doc_saver_app/screens/home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:provider/provider.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider()),
+    ChangeNotifierProvider<DocumentProvider>(create: (_) => DocumentProvider()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -35,7 +43,9 @@ class MyApp extends StatelessWidget {
             AuthenticationScreen.routeName: (context) =>
                 const AuthenticationScreen(),
             ForgotPasswordScreen.routeName: (context) =>
-            const ForgotPasswordScreen(),
+                const ForgotPasswordScreen(),
+            MyHomePage.routeName: (context) => const MyHomePage(),
+            AddDocumentScreen.routeName: (context) => AddDocumentScreen(),
           },
         );
       },
