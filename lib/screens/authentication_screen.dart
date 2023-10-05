@@ -1,6 +1,8 @@
 import 'package:doc_saver_app/provider/auth_provider.dart';
 import 'package:doc_saver_app/screens/forgot_password_screen.dart';
+import 'package:doc_saver_app/screens/home_screen.dart';
 import 'package:doc_saver_app/widgets/custom_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/custom_text_field.dart';
@@ -24,9 +26,10 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
       TextEditingController(text: "1234567889");
   GlobalKey<FormState> key = GlobalKey();
 
+
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Consumer<AuthProvider>(builder: (context, provider, _) {
       return Scaffold(
         body: SizedBox(
@@ -126,7 +129,8 @@ class _AuthenticationScreenState extends State<AuthenticationScreen> {
                             } else {
                               provider.signUp(context,
                                   email: emailController.text,
-                                  password: passwordController.text);
+                                  password: passwordController.text,
+                                  userName: usernameController.text);
                             }
                           }
                         },

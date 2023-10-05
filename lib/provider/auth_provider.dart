@@ -1,3 +1,5 @@
+import 'package:doc_saver_app/screens/authentication_screen.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:doc_saver_app/helper/snackbar_helper.dart';
@@ -8,6 +10,8 @@ class AuthProvider extends ChangeNotifier {
   bool get isLogin => _isLogin;
 
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseDatabase _firebaseDatabase = FirebaseDatabase.instance;
+
   setIsLogin() {
     _isLogin = !_isLogin;
     notifyListeners();
@@ -20,23 +24,31 @@ class AuthProvider extends ChangeNotifier {
     _obscureText = !_obscureText;
     notifyListeners();
   }
-  setIsLoading(bool value){
+
+  setIsLoading(bool value) {
     _isLoading = value;
     notifyListeners();
   }
-  
+
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
   signUp(BuildContext context,
-      {required String email, required String password}) async {
+      {required String email, required String password, required String userName}) async {
     try {
       setIsLoading(true);
       UserCredential userCredential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) {
+          .then((value) async {
+        await _firebaseDatabase
+            .ref()
+            .child("user_info/${value.user!.uid}")
+            .set({
+          "username": userName
+        });
         setIsLoading(false);
         SnackBarHelper.showErrorSnackBar(context, "Sign Up Successful");
-        Navigator.of(context).pushNamed(MyHomePage.routeName);
+        Navigator.of(context).pushReplacementNamed(MyHomePage.routeName);
         return value;
       });
     } on FirebaseAuthException catch (firebaseError) {
@@ -57,7 +69,7 @@ class AuthProvider extends ChangeNotifier {
           .then((value) {
         setIsLoading(false);
         SnackBarHelper.showSuccessSnackBar(context, "Sign in Successful");
-        Navigator.of(context).pushNamed(MyHomePage.routeName);
+        Navigator.of(context).pushReplacementNamed(MyHomePage.routeName);
         return value;
       });
     } on FirebaseAuthException catch (firebaseError) {
@@ -71,7 +83,7 @@ class AuthProvider extends ChangeNotifier {
 
   bool _isLoadingForgetPassword = false;
   bool get isLoadingForgetPassword => _isLoadingForgetPassword;
-  setIsLoadingForgetPassword(bool value){
+  setIsLoadingForgetPassword(bool value) {
     _isLoadingForgetPassword = value;
     notifyListeners();
   }
@@ -96,21 +108,21 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoadingLogout = false;
   bool get isLoadingLogout => _isLoadingForgetPassword;
 
-  setIsLoadingLogout(bool value){
+  setIsLoadingLogout(bool value) {
     _isLoadingForgetPassword = value;
     notifyListeners();
   }
 
-  logOut(BuildContext context) async{
+  logOut(BuildContext context) async {
     try {
       setIsLoadingLogout(true);
       await _firebaseAuth.signOut().then((value) {
         setIsLoadingLogout(false);
-        SnackBarHelper.showErrorSnackBar(
-            context, "You have been logged out");
+        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(context).pushReplacementNamed(AuthenticationScreen.routeName);
+        SnackBarHelper.showErrorSnackBar(context, "You have been logged out");
       });
-    }
-    on FirebaseAuthException catch (firebaseError) {
+    } on FirebaseAuthException catch (firebaseError) {
       setIsLoadingLogout(false);
       SnackBarHelper.showErrorSnackBar(context, firebaseError.message!);
     } catch (error) {
@@ -118,8 +130,4 @@ class AuthProvider extends ChangeNotifier {
       SnackBarHelper.showErrorSnackBar(context, error.toString());
     }
   }
-
-
-
-
 }

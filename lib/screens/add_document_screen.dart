@@ -75,6 +75,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
               //provider.pickDocument(context);  provider not available
               //Provider.of<DocumentProvider>(context).pickDocument(context); This will call notifyListener() and again rebuild the UI
               //Provider.of<DocumentProvider>(context, listen: false).pickDocument(context); Create a final variable instead
+              FocusScope.of(context).unfocus();
               _provider.pickDocument(context);
             },
             child: Padding(

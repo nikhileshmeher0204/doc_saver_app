@@ -1,5 +1,9 @@
+import 'package:doc_saver_app/screens/document_view_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:doc_saver_app/models/file_card_model.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/document_provider.dart';
 
 class FileCard extends StatelessWidget {
   final FileCardModel model;
@@ -10,7 +14,7 @@ class FileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: EdgeInsets.all(3),
+      padding: const EdgeInsets.all(3),
       child: ListTile(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
@@ -42,12 +46,48 @@ class FileCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.delete),
+              onPressed: () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        backgroundColor: colorScheme.errorContainer,
+                        title: const Text(
+                            "Are you sure to delete the following document?"),
+                        content: Text(model.title),
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text("Cancel")),
+                          TextButton(
+                              onPressed: () {
+                                print("${model.id} in FileCard");
+                                Provider.of<DocumentProvider>(context,
+                                        listen: false)
+                                    .deleteDocumentData(
+                                        model.id, model.fileName, context)
+                                    .then((value) {
+                                  Navigator.of(context).pop();
+                                });
+                              },
+                              child: const Text("Delete"))
+                        ],
+                      );
+                    });
+              },
+              icon: const Icon(Icons.delete),
               color: Colors.red,
             ),
             InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).pushNamed(DocumentViewScreen.routeName,
+                    arguments: DocumentViewScreenArgs(
+                        fileName: model.fileName,
+                        fileUrl: model.fileUrl,
+                        fileType: model.fileType));
+              },
               child: Text("View"),
             ),
           ],

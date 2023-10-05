@@ -1,3 +1,4 @@
+import 'package:doc_saver_app/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 
 class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -8,8 +9,9 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return PreferredSize(
-      preferredSize: const Size.fromHeight(150),
+      preferredSize: const Size.fromHeight(200),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 10.0),
         child: Column(
@@ -21,25 +23,48 @@ class CustomHomeAppBar extends StatelessWidget implements PreferredSizeWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Image.asset(
-                  "assets/icon_text.png",
-                  width: 150,
+                Transform.scale(
+                  scale: 1.5,
+                  child: Image.asset(
+                    "assets/icon_logo.png",
+                    height: 50,
+                  ),
                 ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.settings)),
+                const Text(
+                  "DocStash",
+                  style: TextStyle(fontSize: 30),
+                ),
+                InkWell(
+                  child: const Icon(Icons.settings),
+                  onTap: () {
+                    FocusScope.of(context).unfocus();
+                    Navigator.of(context).pushNamed(SettingsScreen.routeName);
+                  },
+                )
               ],
             ),
-            SearchBar(
-              hintText: "Search documents",
-              controller: controller,
-              trailing: [
-                InkWell(
-                    onTap: () {
-                      onSearch();
-                    },
-                    child: const Icon(
-                      Icons.search,
-                    ))
-              ],
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: colorScheme.surfaceVariant,
+              ),
+              child: SearchBar(
+                backgroundColor: MaterialStateProperty.all(
+                  colorScheme.surfaceVariant,
+                ),
+                hintText: "Search documents",
+                controller: controller,
+                elevation: MaterialStateProperty.all(0),
+                trailing: [
+                  InkWell(
+                      onTap: () {
+                        onSearch();
+                      },
+                      child: const Icon(
+                        Icons.search,
+                      ))
+                ],
+              ),
             ),
           ],
         ),

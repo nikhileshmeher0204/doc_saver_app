@@ -4,6 +4,7 @@ import 'package:animations/animations.dart';
 import 'package:doc_saver_app/models/file_card_model.dart';
 import 'package:doc_saver_app/widgets/custom_home_appbar.dart';
 import 'package:doc_saver_app/widgets/file_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'add_document_screen.dart';
@@ -17,12 +18,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  TextEditingController searchController = TextEditingController(text: "DL");
+  TextEditingController searchController = TextEditingController();
   StreamController<DatabaseEvent> streamController = StreamController();
+  String userId = FirebaseAuth.instance.currentUser!.uid;
   setStream() {
     FirebaseDatabase.instance
         .ref()
-        .child("files_info")
+        .child("files_info/$userId")
         .orderByChild("title")
         .startAt(searchController.text)
         .endAt("${searchController.text}" "\uf8ff")
@@ -57,22 +59,24 @@ class _MyHomePageState extends State<MyHomePage> {
               print(snapshot.data!.snapshot.value);
               (snapshot.data!.snapshot.value as Map<dynamic, dynamic>)
                   .forEach((key, value) {
-                _list.add(FileCardModel.fromJson(value));
+                print(key);
+                _list.add(FileCardModel.fromJson(value, key));
               });
               return ListView(
-                children: _list
-                    .map(
-                      (e) => FileCard(
-                        model: FileCardModel(
-                            title: e.title,
-                            dateAdded: e.dateAdded,
-                            fileType: e.fileType,
-                            subTitle: e.subTitle,
-                            fileUrl: e.fileUrl,
-                            fileName: e.fileName),
-                      ),
-                    )
-                    .toList(),
+                children: _list.map((e) {
+                  print("Creating FileCard with id: ${e.id}");
+                  return FileCard(
+                    model: FileCardModel(
+                      title: e.title,
+                      dateAdded: e.dateAdded,
+                      fileType: e.fileType,
+                      subTitle: e.subTitle,
+                      fileUrl: e.fileUrl,
+                      fileName: e.fileName,
+                      id: e.id,
+                    ),
+                  );
+                }).toList(),
               );
             } else if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
@@ -97,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
         transitionDuration: const Duration(milliseconds: 500),
         transitionType: ContainerTransitionType.fadeThrough,
         openBuilder: (context, openContainer) {
+          FocusScope.of(context).unfocus();
           return const AddDocumentScreen();
         },
         closedElevation: 6.0,
